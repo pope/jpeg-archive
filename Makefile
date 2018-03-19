@@ -2,6 +2,7 @@ CC ?= gcc
 CFLAGS += -std=c99 -Wall -O3
 LDFLAGS += -lm
 MAKE ?= make
+GO ?= go
 PREFIX ?= /usr/local
 
 UNAME_S := $(shell uname -s)
@@ -55,7 +56,8 @@ test: test/test.c src/util.o src/edit.o src/hash.o
 	./test/$@
 
 jpeg-archive-inplace: jpeg-archive-inplace.go src/util.o src/edit.o src/smallfry.o src/commander.o src/recompress.o $(LIBIQA)
-	go build -i $<
+	$(GO) get github.com/dustin/go-humanize
+	$(GO) build $<
 
 install: all
 	mkdir -p $(PREFIX)/bin
