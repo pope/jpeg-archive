@@ -1,12 +1,10 @@
-dist: trusty
-sudo: required
 language: c
 compiler:
     - clang
     - gcc
 before_install:
     - sudo apt-get update -qq
-    - sudo apt-get install -qq build-essential autoconf nasm golang
+    - sudo apt-get install -qq build-essential autoconf nasm
     - git clone https://github.com/mozilla/mozjpeg.git
     - cd mozjpeg
     - git fetch origin refs/tags/v3.2:refs/tags/v3.2
