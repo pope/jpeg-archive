@@ -150,9 +150,11 @@ bool recompress(const char *input, const char *output,
     unsigned int metaSize = 0;
     FILE *file;
 
+    bufSize = readFile(input, (void **)&buf);
+
     /* Detect input file type. */
     enum filetype inputFiletype = options->inputFiletype == FILETYPE_AUTO
-            ? detectFiletype(input)
+            ? detectFiletypeFromBuffer(buf, bufSize)
             : options->inputFiletype;
 
     // No target passed, use preset!
@@ -161,12 +163,11 @@ bool recompress(const char *input, const char *output,
             : options->target;
 
     /*
-    * Read original image and decode. We need the raw buffer contents and
-    * its size to obtain meta data and the original file size later.
-    */
-    bufSize = readFile(input, (void **)&buf);
-    originalSize = decodeFile(input, &original, inputFiletype, &width, &height,
-                              JCS_RGB);
+     * Read original image and decode. We need the raw buffer contents and
+     * its size to obtain meta data and the original file size later.
+     */
+    originalSize = decodeFileFromBuffer(buf, bufSize, &original, inputFiletype,
+                                        &width, &height, JCS_RGB);
     if (!originalSize) {
         return err(error, 1, "invalid input file: %s", input);
     }
@@ -318,6 +319,9 @@ bool recompress(const char *input, const char *output,
                     // Higher than required, decrease quality
                     max = quality - 1;
                     break;
+                case METHOD_UNKNOWN:
+                    // min and max values remain unchanged.
+                    break;
             }
         } else {
             switch (options->method) {
@@ -330,6 +334,9 @@ bool recompress(const char *input, const char *output,
                 case METHOD_MPE:
                     // Too distorted, increase quality
                     min = quality + 1;
+                    break;
+                case METHOD_UNKNOWN:
+                    // min and max values remain unchanged.
                     break;
             }
         }
